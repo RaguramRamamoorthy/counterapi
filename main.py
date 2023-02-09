@@ -18,7 +18,7 @@ CORS(app)
 # Telling matplotlib to not create GUI Windows as our application is backend and doesn't require direct visulaization
 matplotlib.use('agg')
 # Loading our custom model
-model = core.Model.load('model_weights-2.pth', ['rbc'])
+model = core.Model.load('model_weights.pth', ['rbc'])
 
 
 def allowed_file(filename):
