@@ -1,10 +1,8 @@
 # Importing packages
 from detecto import core, utils, visualize
 from flask import Flask, escape, request, jsonify, Response
-import skimage
 from flask_cors import CORS
 from PIL import Image
-import numpy as np
 import torch
 import matplotlib
 import matplotlib.pyplot as plt
