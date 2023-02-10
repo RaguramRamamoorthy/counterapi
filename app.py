@@ -24,6 +24,11 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route('/')
+def hello_world():
+    return 'Hello Sammy!'
+
+
 # Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
 @app.route("/detect", methods=['POST'])
 def detect():
