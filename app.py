@@ -26,7 +26,7 @@ def allowed_file(filename):
 
 @app.route('/')
 def hello_world():
-    return 'Hello Sammy!'
+    return 'Hello Megha!'
 
 
 # Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
