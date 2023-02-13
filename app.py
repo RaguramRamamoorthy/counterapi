@@ -9,12 +9,14 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
-
+import re
+import base64
+import numpy as np
 
 global model
 # Initilaising app and wrapping it in CORS to allow request from different services
 app = Flask(__name__)
-# CORS(app)
+CORS(app)
 # Telling matplotlib to not create GUI Windows as our application is backend and doesn't require direct visulaization
 matplotlib.use('agg')
 # Loading our custom model
@@ -29,6 +31,22 @@ def allowed_file(filename):
 @app.route('/')
 def hello_world():
     return 'Hello Megha!'
+
+
+# Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
+@app.route("/test", methods=['POST'])
+def test():
+    # Accessing file from request
+    file = request.files['image']
+
+    # Check if the file extension is allowed
+    if not allowed_file(file.filename):
+        return "Only PNG and JPG image formats are allowed", 400
+
+    image = Image.open(file).convert('RGB')
+    x = np.invert(image)
+    response = np.array_str(x)
+    return response
 
 
 # Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
@@ -70,7 +88,8 @@ def detect():
     FigureCanvas(fig).print_png(output)
 
     # Sending response as png image
-    return Response(output.getvalue(), mimetype='image/png')
+    # return Response(output.getvalue(), mimetype='image/png')
+    return 'hru'
 
 
 if __name__ == '__main__':
