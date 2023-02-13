@@ -14,7 +14,7 @@ import io
 global model
 # Initilaising app and wrapping it in CORS to allow request from different services
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 # Telling matplotlib to not create GUI Windows as our application is backend and doesn't require direct visulaization
 matplotlib.use('agg')
 # Loading our custom model
