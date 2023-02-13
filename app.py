@@ -1,5 +1,5 @@
 # Importing packages
-from detecto import core, utils, visualize
+# from detecto import core, utils, visualize
 from flask import Flask, escape, request, jsonify, Response
 from flask_cors import CORS
 from PIL import Image
@@ -10,15 +10,15 @@ import matplotlib.patches as patches
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 import numpy as np
+from load import *
 
-global model
 # Initilaising app and wrapping it in CORS to allow request from different services
 app = Flask(__name__)
 CORS(app)
 # Telling matplotlib to not create GUI Windows as our application is backend and doesn't require direct visulaization
 matplotlib.use('agg')
 # Loading our custom model
-model = core.Model.load('model_weights.pth', ['rbc'])
+# model = core.Model.load('model_weights.pth', ['rbc'])
 
 
 def allowed_file(filename):
@@ -50,6 +50,7 @@ def test():
 # Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
 @app.route("/detect", methods=['POST'])
 def detect():
+    model = init()
     # Accessing file from request
     file = request.files['image']
 
@@ -74,6 +75,7 @@ def detect():
     box = torch.stack(box)
     # Creating figure and displaying original image
     fig, ax = plt.subplots(1)
+    plt.axis('off')
     ax.imshow(image)
     # Adding bounding boxes
     for i in range(len(box)):
