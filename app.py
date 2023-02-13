@@ -10,6 +10,8 @@ import matplotlib.patches as patches
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 
+
+global model
 # Initilaising app and wrapping it in CORS to allow request from different services
 app = Flask(__name__)
 CORS(app)
