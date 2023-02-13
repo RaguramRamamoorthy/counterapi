@@ -58,9 +58,9 @@ def detect():
         return "Only PNG and JPG image formats are allowed", 400
 
     image = Image.open(file).convert('RGB')
-    # torch_model = model.get_internal_model()
-    # if torch_model.roi_heads.detections_per_img == 100:
-    #     torch_model.roi_heads.detections_per_img = 1000
+    torch_model = model.get_internal_model()
+    if torch_model.roi_heads.detections_per_img == 100:
+        torch_model.roi_heads.detections_per_img = 1000
     # Using model to detect objects
     predictions = model.predict(image)
     labels, boxes, scores = predictions
