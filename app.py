@@ -1,5 +1,6 @@
 # Importing packages
 # from detecto import core, utils, visualize
+import PIL.Image
 from flask import Flask, escape, request, jsonify, Response
 from flask_cors import CORS
 from PIL import Image
@@ -13,6 +14,7 @@ import numpy as np
 import json
 import base64
 from load import *
+import cv2
 
 # Initilaising app and wrapping it in CORS to allow request from different services
 app = Flask(__name__)
@@ -49,6 +51,48 @@ def test():
     x = np.invert(image)
     response = np.array_str(x)
     return response
+
+
+# Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
+@app.route("/bnw", methods=['POST'])
+def bnw():
+    data = request.json
+    image_rec = data['image']
+    slider = data['slider']
+
+
+    # Decode the Base64-encoded image data to bytes
+    image_bytes = base64.b64decode(image_rec)
+    image_byte = io.BytesIO(image_bytes)
+
+    # Open the image data as an Image object
+    imagebnw = Image.open(image_byte)
+    converted_img = np.array(imagebnw)
+    gray_scale = cv2.cvtColor(converted_img, cv2.COLOR_RGB2GRAY)
+    (thresh, blackAndWhiteImage) = cv2.threshold(gray_scale, slider, 255, cv2.THRESH_BINARY)
+    image = Image.fromarray(blackAndWhiteImage)
+
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format='PNG')
+
+    base64_image = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+
+
+
+    # converted_img = np.array(imagebnw)
+    # gray_scale = cv2.cvtColor(converted_img, cv2.COLOR_RGB2GRAY)
+    # (thresh, blackAndWhiteImage) = cv2.threshold(gray_scale, slider, 255, cv2.THRESH_BINARY)
+
+    data = {
+        'image': base64_image
+        # 'image': base64.b64encode(black_and_white_image).decode('utf-8')
+    }
+
+    # Convert the dictionary to JSON
+    json_data = json.dumps(data)
+
+    # Return the JSON response
+    return Response(json_data, mimetype='application/json')
 
 
 # Adding new POST endpoint that will accept image and output image with bounding boxes of detected objects
