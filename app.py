@@ -25,6 +25,22 @@ matplotlib.use('agg')
 
 # Loading our custom model
 # model = core.Model.load('model_weights.pth', ['rbc'])
+def crop_image(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    th, threshed = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY_INV)
+
+    # (2) Morph-op to remove noise
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+    morphed = cv2.morphologyEx(threshed, cv2.MORPH_CLOSE, kernel)
+
+    # (3) Find the max-area contour
+    cnts = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    cnt = sorted(cnts, key=cv2.contourArea)[-1]
+
+    # (4) Crop and save it
+    x, y, w, h = cv2.boundingRect(cnt)
+    dst = image[y:y + h, x:x + w]
+    return dst
 
 
 def allowed_file(filename):
@@ -60,7 +76,6 @@ def bnw():
     image_rec = data['image']
     slider = data['slider']
 
-
     # Decode the Base64-encoded image data to bytes
     image_bytes = base64.b64decode(image_rec)
     image_byte = io.BytesIO(image_bytes)
@@ -76,8 +91,6 @@ def bnw():
     image.save(img_byte_arr, format='PNG')
 
     base64_image = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
-
-
 
     # converted_img = np.array(imagebnw)
     # gray_scale = cv2.cvtColor(converted_img, cv2.COLOR_RGB2GRAY)
@@ -148,11 +161,25 @@ def detect():
     # Preparing output
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
+    image_with_count = output.getvalue()
+
+    image = Image.open(io.BytesIO(image_with_count))
+
+    converted_img = np.array(image.convert('RGB'))
+    image_cropped = crop_image(converted_img)
+    image_pil = Image.fromarray(image_cropped)
+
+    output1 = io.BytesIO()
+    # Save the image to the BytesIO object
+    image_pil.save(output1, format='PNG')
+    # Get the byte stream value
+    image_bytes = output1.getvalue()
 
     number = len(labels)
+    print(number)
 
     data = {
-        'image': base64.b64encode(output.getvalue()).decode('utf-8'),
+        'image': base64.b64encode(image_bytes).decode('utf-8'),
         'number': number
     }
 
